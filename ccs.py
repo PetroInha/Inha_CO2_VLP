@@ -2,6 +2,16 @@ import numpy as np
 from math import *
 
 def density_of_co2(P, T, verbose = False):
+    """ this is to calculate density of co2
+
+    Args:
+        P (float): Pressure
+        T (float): Temperature 
+        verbose (bool, optional): Whether to print out result. Defaults to False.
+
+    Returns:
+        density (float): calculated density of CO2 
+    """
     if P>25 and P<=100:
         A1 = 2.089800972761597e5;   B1 = -1.456286332143609e4; C1 = 2.885813588280259e2;   D1 = -1.597103845187521
         A2 = -1.675182353338921e3;  B2 = 1.16799554255704e2;   C2 = -2.31558333122805;     D2 = 1.284012022012305e-2
