@@ -1,8 +1,8 @@
 import numpy as np
 from math import *
 
-def density_of_co2(P, T):
-    if P>25 and P<100:
+def density_of_co2(P, T, verbose = False):
+    if P>25 and P<=100:
         A1 = 2.089800972761597e5;   B1 = -1.456286332143609e4; C1 = 2.885813588280259e2;   D1 = -1.597103845187521
         A2 = -1.675182353338921e3;  B2 = 1.16799554255704e2;   C2 = -2.31558333122805;     D2 = 1.284012022012305e-2
         A3 = 4.450600950630782;     B3 = -3.10430147581379e-1; C3 = 6.157718845508209e-3;  D3 = -3.420339567335051e-5
@@ -14,8 +14,9 @@ def density_of_co2(P, T):
         theta = A4 + B4*P + C4*P**2 + D4*P**3
 
         density = alpha + beta*T + gamma*(T**2) + theta*(T**3)
-        print('density: {0}'.format(density))
-
+        if verbose == True:
+            print('density: {0}'.format(density))
+    
     elif P>100 and P<700:
         A1 = 1.053293651041897e5;   B1 = -9.396448507019846e2;  C1 = 2.397414334181339;     D1 = -1.819046028481314e-3
         A2 = -8.253383504614545e2;  B2 = 7.618125848567747;     C2 = -1.963563757655062e-2; D2 = 1.497658394413360e-5
@@ -28,14 +29,15 @@ def density_of_co2(P, T):
         theta = A4 + B4*P + C4*P**2 + D4*P**3
 
         density = alpha + beta*T + gamma*(T**2) + theta*(T**3)
-        print('density: {0}'.format(density))
+        if verbose == True:
+            print('density: {0}'.format(density))
 
     else:
-        print('Warring: co2 pressure is not valid')
+        assert False, "Warring: co2 pressure is not valid"
     
     return density
 
-def viscosity_of_co2(density, T): 
+def viscosity_of_co2(density, T, verbose = False): 
     a0 = 0.235156; a1 = -0.491266; a2 = 5.211155e-2; a3 = 5.347906e-2; a4 = -1.537102e-2
     d11 = 0.4071119e-2; d21 = 0.7198037e-4; d64 = 0.2411697e-16; d81 = 0.2971072e-22 ; d82 = -0.1627888e-22
     
@@ -44,12 +46,13 @@ def viscosity_of_co2(density, T):
 
     viscosity = viscosity1 + viscosity2
 
-    print('viscosity: {0}'.format(viscosity))
+    if verbose == True: 
+        print('viscosity: {0}'.format(viscosity))
 
     return viscosity
 
 def Reynolds(density, V, D, viscosity):
-    Re = density*V*D/(viscosity*1e-6)
+    Re = density*V*D/(viscosity)
     return Re
 
 def friction_factor(rel_roughness, Re):
@@ -63,46 +66,47 @@ def friction_factor(rel_roughness, Re):
         f = np.nan
     return f
 
-def flow_rate(M,viscosity):
-    Q=M/viscosity
+def flow_rate(M,density):
+    Q=M/density
     return Q
 
 def velocity(D,Q):
     V = Q/(pi*(D**2)/4)
     return V
 
-def delta_pressure(f,viscosity,V,D,h):
+def friction_delta_pressure(f,viscosity,V,D,h):
     delta_P = f*viscosity*h*(V**2)/(2*D)
     return delta_P
 
-P_up = input('압력(bar): ')
-T = 300.0              # k
-h = 100.0              # m
-D = 0.25               # m
-M = 2.87666            # kg/s
-rel_roughness = 0.0018
 
-P = (P_up + 700)/2
-
-density = density_of_co2(float(P), float(T))
-viscosity_of_co2 = viscosity_of_co2(density, float(T))
-
-viscosity = viscosity_of_co2
-
-Q = flow_rate(M,viscosity)
-
-V = velocity(float(D),float(Q))
-
-Re = Reynolds(density, float(V), float(D), viscosity)
-
-rel_roughness = float(rel_roughness)
-
-friction_factor(float(rel_roughness),Re)
-f = friction_factor(float(rel_roughness),Re)
+if __name__ == "__main__":
 
 
+    P_up = input('압력(bar): ')
+    T = 300.0              # k
+    h = 100.0              # m
+    D = 0.25               # m
+    M = 2.87666            # kg/s
+    rel_roughness = 0.0018
 
+    P = (P_up + P_up+2.0)/2.
 
-def pressure_under(P,delta_P):
-    P_under = P + delta_P
-    print('입력한 압력보다 100m아래의 압력은 {0}(bar)입니다.'.format(P_under))
+    density = density_of_co2(P, T)
+    viscosity_of_co2 = viscosity_of_co2(density, T)
+
+    viscosity = viscosity_of_co2
+
+    Q = flow_rate(M,density)
+
+    V = velocity(float(D),float(Q))
+
+    Re = Reynolds(density, float(V), float(D), viscosity)
+
+    rel_roughness = float(rel_roughness)
+
+    friction_factor(float(rel_roughness),Re)
+    f = friction_factor(float(rel_roughness),Re)
+
+    def pressure_under(P,delta_P):
+        P_under = P + delta_P
+        print('입력한 압력보다 100m아래의 압력은 {0}(bar)입니다.'.format(P_under))
