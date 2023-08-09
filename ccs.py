@@ -5,12 +5,12 @@ def density_of_co2(P, T, verbose = False):
     """ this is to calculate density of co2
 
     Args:
-        P (float): Pressure
-        T (float): Temperature 
+        P (float): Pressure [bar]
+        T (float): Temperature [K]
         verbose (bool, optional): Whether to print out result. Defaults to False.
 
     Returns:
-        density (float): calculated density of CO2 
+        density (float): calculated density of CO2 [kg/m^3]
     """
     if P>25 and P<=100:
         A1 = 2.089800972761597e5;   B1 = -1.456286332143609e4; C1 = 2.885813588280259e2;   D1 = -1.597103845187521
@@ -47,7 +47,17 @@ def density_of_co2(P, T, verbose = False):
     
     return density
 
-def viscosity_of_co2(density, T, verbose = False): 
+def viscosity_of_co2(density, T, verbose = False):
+    """this is to calculate viscosity of co2
+
+    Args:
+        density (float): Density [kg/m^3]
+        T (float): Temperature [K]
+        verbose (bool, optional): Whether to print out result. Defaults to False.
+
+    Returns:
+        viscosity (float): calculated viscosity of CO2 [Pa s]
+    """
     a0 = 0.235156; a1 = -0.491266; a2 = 5.211155e-2; a3 = 5.347906e-2; a4 = -1.537102e-2
     d11 = 0.4071119e-2; d21 = 0.7198037e-4; d64 = 0.2411697e-16; d81 = 0.2971072e-22 ; d82 = -0.1627888e-22
     
@@ -62,10 +72,30 @@ def viscosity_of_co2(density, T, verbose = False):
     return viscosity
 
 def Reynolds(density, V, D, viscosity):
+    """this is to calculate Reynolds number of co2
+
+    Args:
+        density (float): Density [kg/m^3]
+        V (float): Velocity [m/s]
+        D (float): Diameter [m]
+        viscosity (float): [Pa s]
+
+    Returns:
+        Reynolds (float): calculated Reynolds number of co2 [dimensionless]
+    """
     Re = density*V*D/(viscosity)
     return Re
 
 def friction_factor(rel_roughness, Re):
+    """this is to calculate friction factor of CO2
+
+    Args:
+        rel_roughness (float): relative roughness [dimensionless]
+        Re (float): Reynolds number [dimension less]
+
+    Returns:
+        friction_factor(float) : calculated friction factor [dimensionless]
+    """
     if Re > 4000:
         AA0 = -0.79638*log(rel_roughness/8.208 + 7.3357/Re)
         AA1 = Re*rel_roughness + 9.3120665*AA0
@@ -77,14 +107,44 @@ def friction_factor(rel_roughness, Re):
     return f
 
 def flow_rate(M,density):
+    """this is to calculate volume flow rate of CO2
+
+    Args:
+        M (float): mass flow rate [kg/s]
+        density (float): density [kg/m^3]
+
+    Returns:
+        flow_rate(float) : calculated volume flow rate [m^3/s]
+    """
     Q=M/density
     return Q
 
 def velocity(D,Q):
+    """this is to calculate velocity of CO2
+
+    Args:
+        D (float): diameter [m]
+        Q (float): flow rate [m^3/s]
+
+    Returns:
+        velocity(float): calculated velocity [m/s]
+    """
     V = Q/(pi*(D**2)/4)
     return V
 
 def friction_delta_pressure(f,viscosity,V,D,h):
+    """this is to calculate pressure loss due to friction
+
+    Args:
+        f (float): friction factor [dimensionless]
+        viscosity (float): viscosity [Pa s]
+        V (float): velocity [m/s]
+        D (float): diameter [m]
+        h (float): height of pipe [m]
+
+    Returns:
+        friction_delta_pressure: calculated friction delta pressure [Pa]
+    """
     delta_P = f*viscosity*h*(V**2)/(2*D)
     return delta_P
 
