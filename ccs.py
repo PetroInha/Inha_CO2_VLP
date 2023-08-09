@@ -148,6 +148,53 @@ def friction_delta_pressure(f,viscosity,V,D,h):
     delta_P = f*viscosity*h*(V**2)/(2*D)
     return delta_P
 
+def compute_next_pressure(P1, T, D, M, length, del_depth, gravity_acc = 9.81, bar2pa = 1E6, Accepted_error = 1E-6):
+    """ this is to compute next node's pressure
+
+    Args:
+        P1 (float): current node pressure
+        T (float): temperature
+        D (float): diameter
+        M (float): CO2 mass flow rate 
+        length (float): flow length between two nodes
+        del_depth (float): diff of depth between two nodes
+
+    Returns:
+        P2 (float): next node pressure
+    """
+    # Guess only by gravity 
+    assumed_co2_density = density_of_co2(P1, T)
+    hydro_static_p = assumed_co2_density*gravity_acc*del_depth/bar2pa
+    P2 = P1 + hydro_static_p
+    P_avg = (P1 + P2)/ 2
+
+    # Iteration to compute next pressure 
+    error = 99999
+    while error > Accepted_error:
+        
+        # CO2 - EOS 
+        assumed_co2_density = density_of_co2(P_avg, T)
+        assumed_co2_viscosity = viscosity_of_co2(assumed_co2_density, T)
+        
+        # To get pressure change due to friction
+        q = flow_rate(M, assumed_co2_density)
+        flow_velocity = velocity(D, q)
+        reynolds = Reynolds(assumed_co2_density, flow_velocity, D, assumed_co2_viscosity )
+        f = friction_factor(rel_roughness, reynolds )
+        P_del_friction = friction_delta_pressure(f,assumed_co2_viscosity,flow_velocity,D,length)
+        
+        # To get pressrue change due to gravity 
+        P_del_gravity = assumed_co2_density*gravity_acc*del_depth/bar2pa
+
+        P2_new = P1 + P_del_gravity - P_del_friction/bar2pa
+
+        error = P2 - P2_new
+        # print(f'error: {error}')
+
+        P2 = P2_new
+        P_avg = (P1 + P2)/ 2
+        
+    return P2
 
 if __name__ == "__main__":
 
