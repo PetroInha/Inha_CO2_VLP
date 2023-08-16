@@ -69,7 +69,7 @@ def viscosity_of_co2(density, T, verbose = False):
     if verbose == True: 
         print('viscosity: {0}'.format(viscosity))
 
-    return viscosity
+    return viscosity*1E-6
 
 def Reynolds(density, V, D, viscosity):
     """this is to calculate Reynolds number of co2
@@ -148,7 +148,7 @@ def friction_delta_pressure(f,viscosity,V,D,h):
     delta_P = f*viscosity*h*(V**2)/(2*D)
     return delta_P
 
-def compute_next_pressure(P1, T, D, M, length, del_depth, gravity_acc = 9.81, bar2pa = 1E6, Accepted_error = 1E-6):
+def compute_next_pressure(P1, T, D, M, length, del_depth,rel_roughness, gravity_acc = 9.81, bar2pa = 1E5, Accepted_error = 1E-6):
     """ this is to compute next node's pressure
 
     Args:
